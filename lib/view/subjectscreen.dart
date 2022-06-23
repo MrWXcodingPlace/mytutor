@@ -17,21 +17,27 @@ class _SubjectScreenState extends State<SubjectScreen> {
   List<Subject> subjectList = <Subject>[];
   String titlecenter = "Loading...";
   late double screenHeight, screenWidth, resWidth;
+  // ignore: prefer_typing_uninitialized_variables
   var numofpage, curpage = 1;
+  // ignore: prefer_typing_uninitialized_variables
   var color;
+
+  TextEditingController searchController = TextEditingController();
+  String search = "";
 
   @override
   void initState() {
     super.initState();
-    _loadSubjects(1);
+    _loadSubjects(1, search);
   }
 
-  void _loadSubjects(int pageno) {
+  void _loadSubjects(int pageno, String _search) {
     curpage = pageno;
     numofpage ?? 1;
     http.post(Uri.parse(CONSTANTS.server + "/mytutor/php/load_subject.php"),
         body: {
           'pageno': pageno.toString(),
+          'search': _search,
         }).then((response) {
       var jsondata = jsonDecode(response.body);
 
@@ -58,6 +64,50 @@ class _SubjectScreenState extends State<SubjectScreen> {
     });
   }
 
+  void _loadSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, StateSetter setState) {
+          return AlertDialog(
+            title: const Text(
+              "Search",
+            ),
+            content: SizedBox(
+              height: screenHeight / 10,
+              child: Column(
+                children: [
+                  TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      labelText: "Search",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5.0,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  search = searchController.text;
+                  Navigator.of(context).pop();
+                  _loadSubjects(1, search);
+                },
+                child: const Text("Search"),
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
@@ -72,6 +122,14 @@ class _SubjectScreenState extends State<SubjectScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Subject Page"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              _loadSearchDialog();
+            },
+          ),
+        ],
       ),
       body: subjectList.isEmpty
           // Situation that the product list is empty
@@ -182,7 +240,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
                       return SizedBox(
                         width: 40,
                         child: TextButton(
-                            onPressed: () => {_loadSubjects(index + 1)},
+                            onPressed: () => {_loadSubjects(index + 1, "")},
                             child: Text(
                               (index + 1).toString(),
                               style: TextStyle(color: color),

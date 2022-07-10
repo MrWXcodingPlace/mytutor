@@ -4,9 +4,14 @@ import 'package:mytutor/view/profilescreen.dart';
 import 'package:mytutor/view/subjectscreen.dart';
 import 'package:mytutor/view/subscribescreen.dart';
 import 'package:mytutor/view/tutotscreen.dart';
+import '../model/user.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  final User user;
+  const MainScreen({
+    Key? key,
+    required this.user,
+  }) : super(key: key);
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -14,17 +19,24 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  final List<Widget> _children = [
-    const SubjectScreen(),
-    const TutorScreen(),
-    const SubscribeScreen(),
-    const FavouriteScreen(),
-    const ProfileScreen(),
-  ];
+  late List<Widget> children;
+
+  @override
+  void initState() {
+    super.initState();
+    children = [
+      SubjectScreen(user: widget.user),
+      const TutorScreen(),
+      const SubscribeScreen(),
+      const FavouriteScreen(),
+      const ProfileScreen(),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _children[_currentIndex],
+      body: children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),

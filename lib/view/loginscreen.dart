@@ -10,6 +10,8 @@ import 'package:mytutor/view/mainscreen.dart';
 import 'package:mytutor/view/registerscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../model/user.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -332,8 +334,14 @@ class _LoginScreenState extends State<LoginScreen> {
             timeInSecForIosWeb: 5,
             fontSize: 16.0,
           );
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (content) => const MainScreen()));
+          var extractdata = data['data'];
+          User user = User.fromJson(extractdata);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (content) => MainScreen(user: user),
+            ),
+          );
         } else {
           Fluttertoast.showToast(
             msg: "Failed",
